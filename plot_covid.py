@@ -74,31 +74,43 @@ def sum_cols(square):
   return output
 
 
+# CHOOSE COUNTRIES
 S_ge = 'Germany'
 S_us = 'US'
 S_it = 'Italy'
 S_ch = 'China'
 S_ko = 'Korea, South'
-S_jp = 'Japan'
+S_uk = 'United Kingdom'
 dates,C_ge = getCountryData(S_ge)
 dates,C_us = getCountryData(S_us)
 dates,C_it = getCountryData(S_it)
 dates,C_ch = getCountryData(S_ch)
 dates,C_ko = getCountryData(S_ko)
-dates,C_jp = getCountryData(S_jp)
+dates,C_uk = getCountryData(S_uk)
 
-dlist = get_date_list(dates)[0:-1]
+dlist = get_date_list(dates)
 
-C_it = sum_cols(makeInts(C_it))[0:-1]
-C_ge = sum_cols(makeInts(C_ge))[0:-1]
-C_us = sum_cols(makeInts(C_us))[0:-1]
-C_ch = sum_cols(makeInts(C_ch))[0:-1]
-C_ko = sum_cols(makeInts(C_ko))[0:-1]
-C_jp = sum_cols(makeInts(C_jp))[0:-1]
+C_it = sum_cols(makeInts(C_it))
+C_ge = sum_cols(makeInts(C_ge))
+C_us = sum_cols(makeInts(C_us))
+C_ch = sum_cols(makeInts(C_ch))
+C_ko = sum_cols(makeInts(C_ko))
+C_uk = sum_cols(makeInts(C_uk))
+
+# Remove today's data
+rmtoday = False
+if (rmtoday):
+  dlist = dlist[0:-1]
+  C_it = C_it[0:-1]
+  C_ge = C_ge[0:-1]
+  C_us = C_us[0:-1]
+  C_ch = C_ch[0:-1]
+  C_ko = C_ko[0:-1]
+  C_uk = C_uk[0:-1]
+
 #print('Country: {}, values: {}'.format(S_us, C_us))
 #print('Country: {}, values: {}'.format(S_it, C_it))
-#print('Country: {}, values: {}'.format(S_jp, C_jp))
-
+#print('Country: {}, values: {}'.format(S_uk, C_uk))
 
 ## CURVE FIT ##
 x = np.array(dlist)
@@ -107,7 +119,7 @@ fit = np.polyfit(x, np.log(y), 1, w = np.sqrt(y))
 A = np.exp(fit[1])
 B = fit[0]
 print(fit)
-print('A = {}, B = {}'.format(A,B))
+#print('A = {}, B = {}'.format(A,B))
 
 xd = []
 yd = []
@@ -115,15 +127,14 @@ for d in range(7):
   xd.append(d)
   yd.append(A*np.exp(B*d))
 
-print('yd = {}'.format(yd))
-
+#print('yd = {}'.format(yd))
 
 plt.plot(dlist,C_ge,label=S_ge)
 plt.plot(dlist,C_us,"--",label=S_us)
 plt.plot(dlist,C_it,label=S_it)
 plt.plot(dlist,C_ch,label=S_ch)
 plt.plot(dlist,C_ko,label=S_ko)
-plt.plot(dlist,C_jp,label=S_jp)
+plt.plot(dlist,C_uk,label=S_uk)
 plt.plot(xd,yd,'k.',label='US-FIT')
 plt.yscale("log")
 plt.ylim(100,1e6)
