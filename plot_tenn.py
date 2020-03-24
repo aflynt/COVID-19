@@ -18,6 +18,23 @@ filename = 'time_series_19-covid-Confirmed.csv'
 #   0          1      2     3     4        N
 # Province, Country, LAT, LONG, DATE0 ... DATE N
 
+def getStateData(key='Tennessee'):
+  dates = []
+  cdata = []
+  with open(pwd+'/'+filename, 'r') as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=',')
+  
+    #print(dates)
+    dates = next(csvreader)[4:]
+  
+    # find the row of interest aka keyCountry
+    for row in csvreader:
+      if row[0].find(key) != -1:
+        cdata.append(row[4:])
+        #print('LOOKING for <{}> FOUND <{}>'.format(key,row[0:1]))
+
+  return dates,cdata
+
 def getCountryData(key='Italy'):
   dates = []
   cdata = []
@@ -81,12 +98,14 @@ S_it = 'Italy'
 S_ch = 'China'
 S_ko = 'Korea, South'
 S_uk = 'United Kingdom'
+S_tn = 'Tennessee'
 dates,C_ge = getCountryData(S_ge)
 dates,C_us = getCountryData(S_us)
 dates,C_it = getCountryData(S_it)
 dates,C_ch = getCountryData(S_ch)
 dates,C_ko = getCountryData(S_ko)
 dates,C_uk = getCountryData(S_uk)
+dates,C_tn = getStateData(S_tn)
 
 dlist = get_date_list(dates)
 
@@ -96,6 +115,7 @@ C_us = sum_cols(makeInts(C_us))
 C_ch = sum_cols(makeInts(C_ch))
 C_ko = sum_cols(makeInts(C_ko))
 C_uk = sum_cols(makeInts(C_uk))
+C_tn = sum_cols(makeInts(C_tn))
 
 # Remove today's data
 rmtoday = False
@@ -108,37 +128,45 @@ if (rmtoday):
   C_ch = C_ch[0:-1]
   C_ko = C_ko[0:-1]
   C_uk = C_uk[0:-1]
+  C_tn = C_tn[0:-1]
 
 #print('Country: {}, values: {}'.format(S_us, C_us))
 #print('Country: {}, values: {}'.format(S_it, C_it))
-#print('Country: {}, values: {}'.format(S_uk, C_uk))
+print('Country: {}, values: {}'.format(S_tn, C_tn))
 
 ## CURVE FIT ##
-x = np.array(dlist)
-y = np.array(C_us)
-fit = np.polyfit(x, np.log(y), 1, w = np.sqrt(y))
-A = np.exp(fit[1])
-B = fit[0]
-print(fit)
-#print('A = {}, B = {}'.format(A,B))
+def curve_fit(dlist, C_us):
+  x = np.array(dlist[-9:-1])
+  y = np.array(C_us[-9:-1])
+  fit = np.polyfit(x, np.log(y), 1, w = np.sqrt(y))
+  A = np.exp(fit[1])
+  B = fit[0]
+  #print(fit)
+  #print('A = {}, B = {}'.format(A,B))
+  
+  xd = []
+  yd = []
+  for d in range(7):
+    xd.append(d)
+    yd.append(A*np.exp(B*d))
+  return xd,yd
 
-xd = []
-yd = []
-for d in range(7):
-  xd.append(d)
-  yd.append(A*np.exp(B*d))
+xd,yd = curve_fit(dlist, C_us)
+xt,yt = curve_fit(dlist, C_tn)
 
 #print('yd = {}'.format(yd))
 
-plt.plot(dlist,C_ge,label=S_ge)
+#plt.plot(dlist,C_ge,label=S_ge)
 plt.plot(dlist,C_us,"--",label=S_us)
-plt.plot(dlist,C_it,label=S_it)
-plt.plot(dlist,C_ch,label=S_ch)
-plt.plot(dlist,C_ko,label=S_ko)
-plt.plot(dlist,C_uk,label=S_uk)
-plt.plot(xd,yd,'k.',label='US-FIT')
+#plt.plot(dlist,C_it,label=S_it)
+#plt.plot(dlist,C_ch,label=S_ch)
+#plt.plot(dlist,C_ko,label=S_ko)
+#plt.plot(dlist,C_uk,label=S_uk)
+plt.plot(dlist,C_tn,"b-",label=S_tn)
+plt.plot(xd,yd,'k.',label='FIT-US')
+plt.plot(xt,yt,'b.',label='FIT-TN')
 plt.yscale("log")
-plt.ylim(100,1e6)
+plt.ylim(10,1e6)
 plt.xlim(-35,7.01)
 plt.xticks(np.arange(-35,7,7))
 plt.xlabel('Days Since {}'.format(today))
