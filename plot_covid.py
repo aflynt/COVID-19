@@ -13,7 +13,8 @@ csv.register_dialect(\
     skipinitialspace = True, lineterminator = '\n' )
 
 pwd = '/home/flyntga/git/COVID-19/csse_covid_19_data/csse_covid_19_time_series'
-filename = 'time_series_19-covid-Confirmed.csv'
+#filename = 'time_series_19-covid-Confirmed.csv'
+filename = 'time_series_covid19_confirmed_global.csv'
 
 #   0          1      2     3     4        N
 # Province, Country, LAT, LONG, DATE0 ... DATE N
@@ -81,12 +82,14 @@ S_it = 'Italy'
 S_ch = 'China'
 S_ko = 'Korea, South'
 S_uk = 'United Kingdom'
+S_fr = 'France'
 dates,C_ge = getCountryData(S_ge)
 dates,C_us = getCountryData(S_us)
 dates,C_it = getCountryData(S_it)
 dates,C_ch = getCountryData(S_ch)
 dates,C_ko = getCountryData(S_ko)
 dates,C_uk = getCountryData(S_uk)
+dates,C_fr = getCountryData(S_fr)
 
 dlist = get_date_list(dates)
 
@@ -96,6 +99,7 @@ C_us = sum_cols(makeInts(C_us))
 C_ch = sum_cols(makeInts(C_ch))
 C_ko = sum_cols(makeInts(C_ko))
 C_uk = sum_cols(makeInts(C_uk))
+C_fr = sum_cols(makeInts(C_fr))
 
 # Remove today's data
 rmtoday = False
@@ -108,6 +112,7 @@ if (rmtoday):
   C_ch = C_ch[0:-1]
   C_ko = C_ko[0:-1]
   C_uk = C_uk[0:-1]
+  C_fr = C_fr[0:-1]
 
 #print('Country: {}, values: {}'.format(S_us, C_us))
 #print('Country: {}, values: {}'.format(S_it, C_it))
@@ -130,12 +135,13 @@ for d in range(7):
 
 #print('yd = {}'.format(yd))
 
-plt.plot(dlist,C_ge,label=S_ge)
-plt.plot(dlist,C_us,"--",label=S_us)
-plt.plot(dlist,C_it,label=S_it)
-plt.plot(dlist,C_ch,label=S_ch)
-plt.plot(dlist,C_ko,label=S_ko)
-plt.plot(dlist,C_uk,label=S_uk)
+plt.plot(dlist,C_ge,"b",label=S_ge)
+plt.plot(dlist,C_us,"k--",label=S_us)
+plt.plot(dlist,C_it,"k",label=S_it)
+plt.plot(dlist,C_ch,"g-.",label=S_ch)
+plt.plot(dlist,C_ko,"b--",label=S_ko)
+plt.plot(dlist,C_uk,"r",label=S_uk)
+plt.plot(dlist,C_fr,"r-.",label=S_fr)
 plt.plot(xd,yd,'k.',label='US-FIT')
 plt.yscale("log")
 plt.ylim(100,1e6)
