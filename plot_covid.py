@@ -119,8 +119,9 @@ if (rmtoday):
 #print('Country: {}, values: {}'.format(S_uk, C_uk))
 
 ## CURVE FIT ##
-x = np.array(dlist)
-y = np.array(C_us)
+DAYS = 7
+x = np.array(dlist[-7:])
+y = np.array(C_us[-7:])
 fit = np.polyfit(x, np.log(y), 1, w = np.sqrt(y))
 A = np.exp(fit[1])
 B = fit[0]

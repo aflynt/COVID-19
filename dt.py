@@ -14,11 +14,10 @@ csv.register_dialect(\
     skipinitialspace = True, lineterminator = '\n' )
 
 pwd = '/home/flyntga/git/COVID-19/csse_covid_19_data/csse_covid_19_time_series'
-filename = 'time_series_covid19_confirmed_US.csv'
+filename = 'time_series_covid19_deaths_US.csv'
 
-#   0          1      2     3     4        N
-# Province, Country, LAT, LONG, DATE0 ... DATE N
-DATESTART = 11
+
+DATESTART = 12
 NCOUNTY = 5
 NSTATE = 6
 NCOUNTRY = 7
@@ -71,11 +70,12 @@ def getCountryData(key='Italy'):
   
     # find the row of interest aka keyCountry
     for row in csvreader:
-      val = row[NSTATE]
-      #print('KEY = {}, VAL = {}'.format(key,val))
-      if row[NCOUNTRY].find(key) != -1:
-        cdata.append(row[DATESTART:])
-        #print('LOOKING for <{}> FOUND <{}>'.format(key,row[0:1]))
+      if len(row) >= NSTATE:
+        val = row[NSTATE]
+        #print('KEY = {}, VAL = {}'.format(key,val))
+        if row[NCOUNTRY].find(key) != -1:
+          cdata.append(row[DATESTART:])
+          #print('LOOKING for <{}> FOUND <{}>'.format(key,row[0:1]))
 
   return dates,cdata
 
@@ -106,7 +106,7 @@ def makeInts(strList):
       if s == '':
         IL[i][j] = IL[i][j-1]
       else:
-        IL[i][j] = int(s)
+        IL[i][j] = int(float(s))
   return IL
 
 def sum_cols(square):
@@ -367,65 +367,6 @@ if (rmtoday):
 #print('Country: {}, values: {}'.format(S_it, C_it))
 print('Country: {}, values: {}'.format(S_tn, C_tn))
 
-
-def getDaily(C_tn):
-  dcTN = []
-  dcTN.append(0)
-  for i in range(1,len(C_tn)):
-    delta = C_tn[i] - C_tn[i-1]
-    dcTN.append(delta)
-
-  # get trailing average (3days)
-  avg = []
-  for i in range(len(C_tn)):
-    avg.append(0)
-
-  for i in reversed(range(2,len(dcTN))):
-    # average
-    tmp = 1/3. *( dcTN[i] + dcTN[i-1] + dcTN[i-2])
-    avg[i] = tmp
-
-  avg[0] = 0
-  avg[1] = 0
-
-  return avg
-
-dcTN = getDaily( C_tn )
-dc04 = getDaily( C_04 )
-dc09 = getDaily( C_09 )
-dc22 = getDaily( C_22 )
-dc24 = getDaily( C_24 )
-dc30 = getDaily( C_30 )
-dc32 = getDaily( C_32 )
-dc37 = getDaily( C_37 )
-dc46 = getDaily( C_46 )
-dc47 = getDaily( C_47 )
-dc48 = getDaily( C_48 )
-dc53 = getDaily( C_53 )
-dc58 = getDaily( C_58 )
-dc41 = getDaily( C_41 )
-
-#print(d
-plt.plot(dlist,dcTN,"m-.",label=S_tn)
-plt.plot(dlist,dc04,"b--",label = S_04)
-plt.plot(dlist,dc09, "--",label = S_09)
-plt.plot(dlist,dc22,"r--",label = S_22)
-plt.plot(dlist,dc24,"g--",label = S_24)
-plt.plot(dlist,dc30,"b-" ,label = S_30)
-plt.plot(dlist,dc32,"k-" ,label = S_32)
-plt.plot(dlist,dc46,"g-" ,label = S_46)
-plt.plot(dlist,dc47,"b-.",label = S_47)
-plt.plot(dlist,dc53,"r-.",label = S_53)
-plt.plot(dlist,dc41,"g-.",label = S_41)
-plt.xlim(-35,7.01)
-plt.xticks(np.arange(-35,7,7))
-plt.xlabel('Days Since {}'.format(today))
-plt.ylabel('Daily Cases')
-plt.title('Covid-19 Daily Cases')
-plt.legend(loc='upper left')
-plt.grid(True)
-plt.show()
-
 ## CURVE FIT ##
 def curve_fit(dlist, C_us):
   x = np.array(dlist[-7:-1])
@@ -492,12 +433,6 @@ plt.plot(dlist,C_41,"g-.",label=S_41)
 plt.plot(xd,yd,'r.',label=L22)
 plt.plot(xt,yt,'g.',label=FITLABELNY)
 plt.plot(xus,yus,'k.',label=FITLABELUS)
-
-dclose_tn = int((date(day=1,month=4,year=2020) - today).days)
-dclose_ny = int((date(day=22,month=3,year=2020) - today).days)
-
-plt.plot([dclose_tn, dclose_tn], [10, 3000],'k-',label="TN-closed")
-plt.plot([dclose_ny, dclose_ny], [10, 14700],'g-',label="NY-closed")
 plt.yscale("log")
 plt.ylim(10,1e6)
 plt.xlim(-35,7.01)
@@ -506,7 +441,7 @@ plt.xlabel('Days Since {}'.format(today))
 plt.ylabel('Confirmed Cases')
 plt.title('Covid-19 Cases')
 #plt.text(-7, 1e4, "HELLO",{'color': 'black', 'fontsize': 24, 'ha': 'center', 'va':'center','bbox': dict(boxstyle="round", fc="white", ec="black", pad=0.2)})
-plt.text(-5, 2e1, SLstr,{'color': 'black', 'fontsize': 8, 'bbox': dict(boxstyle="round", fc="white", ec="black", pad=0.3)})
+plt.text(-21, 1e4, SLstr,{'color': 'black', 'fontsize': 8, 'bbox': dict(boxstyle="round", fc="white", ec="black", pad=0.3)})
 
 plt.legend(loc='upper left')
 plt.grid(True)
